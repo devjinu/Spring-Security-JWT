@@ -1,14 +1,14 @@
 package com.jwt.springsecurityjwt.config;
 
-import com.jwt.springsecurityjwt.filter.MyFilter1;
 import com.jwt.springsecurityjwt.filter.MyFilter3;
+import com.jwt.springsecurityjwt.config.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.web.filter.CorsFilter;
 
@@ -27,6 +27,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().addFilter(corsFilter) // @CrossOrigin(인증x) , 시큐리티 필터에 등록 인증 o
                 .formLogin().disable() // form 로그인 사용x
                 .httpBasic().disable()
+                .addFilter(new JwtAuthenticationFilter(authenticationManager())) // AuthenticationManager
                 .authorizeRequests().antMatchers("/api/v1/user/**")
                 .access("hasRole('ROLE_USER') or hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')") // user
                 .antMatchers("/api/v1/manager/**")
