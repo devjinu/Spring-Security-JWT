@@ -24,12 +24,13 @@ import java.util.Date;
 // UsernamePasswordAuthenticationFilter가 동작
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+
     private final AuthenticationManager authenticationManager;
 
     // /login 요청을 하면 로그인 시도를 위해서 실행되는 함수
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        System.out.println("JwtAuthenticationFilter : 로그인 시도 중");
+        System.out.println("attemptAuthentication : 로그인 시도 중");
 
         // 1. username, password -> 정상인지 로그인 시도
         // 2. authenticationManager로 로그인 시도 -> PrincipalDetailsService가 호출 -> loadUserByUsername() 실행
@@ -82,12 +83,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         // Hash암호방식 RSA - x
         String jwtToken = JWT.create()
-                .withSubject("jwt토큰")
-                .withExpiresAt(new Date(System.currentTimeMillis()+(60000*10)))
+                .withSubject(principalDetails.getUsername())
+                .withExpiresAt(new Date(System.currentTimeMillis()+JwtProperties.EXPIRATION_TIME))
                 .withClaim("id", principalDetails.getUser().getId())
                 .withClaim("username", principalDetails.getUser().getUsername())
-                .sign(Algorithm.HMAC512("moon"));
+                .sign(Algorithm.HMAC512(JwtProperties.SECRET));
 
-        response.addHeader("Authorization", "Bearer "+jwtToken);
+        response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX+jwtToken);
+
+        System.out.println("jwtToken : "+jwtToken);
     }
 }
